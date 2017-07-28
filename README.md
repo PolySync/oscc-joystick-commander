@@ -1,13 +1,13 @@
 <img src="https://raw.githubusercontent.com/wiki/PolySync/OSCC/images/oscc_logo_title.png">
 
-Joystick commander is an example application designed to show how the Open Source Car Control API can be used to recieve reports from and send commands to a drive-by-wire enabled vehicle. 
+Joystick commander is an example application designed to show how the Open Source Car Control API can be used to recieve reports from and send commands to a drive-by-wire enabled vehicle.
 Using an SDL2 supported game controller, inputs are normalized and converted to relative torque, throttle, and brake commands. This application also demonstrates registering callback functions to recieve and parse OSCC reports as well as vehicle state reports from the car's OBD-II CAN network.
 
 For more information about OSCC, check out our [github](https://github.com/PolySync/oscc).
 
 # Pre-requisites:
 
-OSCC's API and firmware modules are both required, and the modules must be installed on your vehicle. An SDL2 supported game controller is also required, and the SDL2 library and CANlib SDK need to be pre-installed. A CAN interface adapter, such as the [Kvaser Leaf Light](https://www.kvaser.com), is also necessary in order to connect the API to the OSCC control CAN network via USB. This application has been tested with a Logitech F310 gamepad and a wired Xbox 360 controller, but should work with any SDL2 supported game controller. Controllers with rumble capabilities will provide feedback when OSCC is enabled or disabled. 
+OSCC's API and firmware modules are both required, and the modules must be installed on your vehicle. An SDL2 supported game controller is also required, and the SDL2 library and CANlib SDK need to be pre-installed. A CAN interface adapter, such as the [Kvaser Leaf Light](https://www.kvaser.com), is also necessary in order to connect the API to the OSCC control CAN network via USB. This application has been tested with a Logitech F310 gamepad and a wired Xbox 360 controller, but should work with any SDL2 supported game controller. Controllers with rumble capabilities will provide feedback when OSCC is enabled or disabled.
 
 [Xbox 360 Wired Controller](https://www.amazon.com/dp/B004QRKWLA)
 
@@ -21,13 +21,23 @@ sudo apt install libsdl2-dev
 
 # Getting OSCC & Joystick Commander
 
-If you haven't already, you'll need to install the OSCC hardware modules onto your target vehicle. 
+If you haven't already, you'll need to install the OSCC hardware modules onto your target vehicle.
 
-Once you have the hardware installed and the firmware flashed, navigate into your OSCC directory and clone the joystick commander repository. ```cd``` into the joystick_commander directory.
+Once you have the hardware installed and the firmware flashed, go into the root directory
+of the joystick commander repository and clone the OSCC repository:
+
+```
+cd oscc-joystick-commander
+git clone git@github.com:PolySync/oscc.git --branch v1.0
+```
+
+This will put all of the necessary OSCC files into a directory called `oscc` within
+the joystick commander directory, which will know to look for them there when
+it builds.
 
 # Building Joystick Commander
 
-From this directory, run the following sequence to build joystick commander:
+From the joystick commander directory, run the following sequence to build it:
 
 ```
 mkdir build
@@ -50,7 +60,7 @@ For example, with a Kvaser Leaf Light attached, using a bitrate of 500000 and a 
 You would then run:
 
 ```
-./joystick-commander 0
+./oscc-joystick-commander 0
 ```
 
 For more information on setting up a socketcan interface, check out [this guide](http://elinux.org/Bringing_CAN_interface_up).
@@ -73,13 +83,20 @@ Joystick.c contains all of the functionality necessary to initialize and interac
 
 ### commander
 
-The commander files contain all of joystick commander's interactivity with the OSCC API. It demonstrates opening and closing the CAN channel communications with OSCC's control CAN network, sending enable/disable commands to the modules through the API, retrieving OSCC reports through callback functions, and sending commands through OSCC's ```publish``` functions. 
+The commander files contain all of joystick commander's interactivity with the OSCC API. It demonstrates opening and closing the CAN channel communications with OSCC's control CAN network, sending enable/disable commands to the modules through the API, retrieving OSCC reports through callback functions, and sending commands through OSCC's ```publish``` functions.
 
 # Using OSCC API
 
-To use the OSCC API in your own applications, you just need to include any relevant header files. 
-* All of the can message protocols are located in ```api/include/can_protocols.h```. These specify the structs we use for steering, throttle, brake, and fault reports.
-* Vehicle specific macros and values are located in ```api/vehicles/*```. 
+To use the OSCC API in your own applications, you just need to include any relevant header files.
+* All of the can message protocols are located in the ```oscc/api/include/can_protocols/```
+directory. These specify the structs we use for steering, throttle, brake, and
+fault reports.
+
+* Vehicle-specific macros and values are located in the ```oscc/api/vehicles/``` directory.
+You only need to include "vehicles.h" which will include the vehicle-specific header for you,
+based on the CMake option provided earlier (e.g., using ```-DKIA_SOUL=ON``` will
+tell ```vehicles.h``` to include ```kia_soul.h``` for you).
+
 * ```oscc.h``` includes all of the functionality you need to interface with the OSCC API.
 
 # License Information
@@ -101,4 +118,3 @@ Please direct questions regarding OSCC and/or licensing to help@polysync.io.
 *Distributed as-is; no warranty is given.*
 
 Copyright (c) 2017 PolySync Technologies, Inc.  All Rights Reserved.
-    
