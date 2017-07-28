@@ -122,54 +122,55 @@ void commander_close( int channel )
 
 int check_for_controller_update( )
 {
-    unsigned int button_pressed = 0;
+    unsigned int disable_button = 0;
 
     int return_code = joystick_update( );
 
     if ( return_code == OSCC_OK )
     {
         return_code = get_button( JOYSTICK_BUTTON_DISABLE_CONTROLS,
-                                  &button_pressed );
+                                  &disable_button );
+    }
+
+    if ( return_code == OSCC_OK )
+    {
+        if ( disable_button != 0 )
+        {
+            return_code = commander_disable_controls( );
+        }
+    }
+
+    unsigned int enable_button = 0;
+
+    if ( return_code == OSCC_OK )
+    {
+            return_code = get_button( JOYSTICK_BUTTON_ENABLE_CONTROLS,
+                                      &enable_button );
+
+            if ( return_code == OSCC_OK )
+            {
+                if ( enable_button != 0 )
+                {
+                    return_code = commander_enable_controls( );
+                }
+            }
+    }
+
+    if ( control_enabled )
+    {
+        return_code = command_brakes( );
 
         if ( return_code == OSCC_OK )
         {
-            if ( button_pressed != 0 )
-            {
-                printf( "Disabling Controls\n" );
-                return_code = commander_disable_controls( );
-            }
-            else
-            {
-                button_pressed = 0;
-                return_code = get_button( JOYSTICK_BUTTON_ENABLE_CONTROLS,
-                                          &button_pressed );
-                if ( return_code == OSCC_OK )
-                {
-                    if ( button_pressed != 0 )
-                    {
-                        return_code = commander_enable_controls( );
-                    }
-                    else
-                    {
-                        if ( control_enabled )
-                        {
-                            return_code = command_brakes( );
+            return_code = command_throttle( );
+        }
 
-                            if ( return_code == OSCC_OK )
-                            {
-                                return_code = command_throttle( );
-                            }
-
-                            if ( return_code == OSCC_OK )
-                            {
-                                return_code = command_steering( );
-                            }
-                        }
-                    }
-                }
-            }
+        if ( return_code == OSCC_OK )
+        {
+            return_code = command_steering( );
         }
     }
+
     return return_code;
 }
 
@@ -190,10 +191,10 @@ static int get_normalized_position( unsigned long axis_index, double * const nor
             low = -1.0;
         }
 
-    ( *normalized_position ) = CONSTRAIN(
-            ((double) axis_position) / INT16_MAX,
-            low,
-            high);
+        ( *normalized_position ) = CONSTRAIN(
+                ((double) axis_position) / INT16_MAX,
+                low,
+                high);
     }
 
     return ( return_code );
@@ -206,26 +207,32 @@ static int check_trigger_positions( )
 
     return_code = joystick_update( );
 
+
+    double normalized_brake_position = 0;
+
     if ( return_code == OSCC_OK )
     {
-        double normalized_brake_position = 0;
         return_code = get_normalized_position( JOYSTICK_AXIS_BRAKE, &normalized_brake_position );
+    }
 
-        if ( return_code == OSCC_OK )
+
+    double normalized_throttle_position = 0;
+
+    if ( return_code == OSCC_OK )
+    {
+        return_code = get_normalized_position( JOYSTICK_AXIS_THROTTLE, &normalized_throttle_position );
+    }
+
+
+    if ( return_code == OSCC_OK )
+    {
+        if ( ( normalized_throttle_position > 0.0 )
+             || ( normalized_brake_position > 0.0 ) )
         {
-            double normalized_throttle_position = 0;
-            return_code = get_normalized_position( JOYSTICK_AXIS_THROTTLE, &normalized_throttle_position );
-
-            if ( return_code == OSCC_OK )
-            {
-                if ( ( normalized_throttle_position > 0.0 ) ||
-                     ( normalized_brake_position > 0.0 ) )
-                {
-                    return_code = OSCC_WARNING;
-                }
-            }
+            return_code = OSCC_WARNING;
         }
     }
+
     return return_code;
 }
 
@@ -285,10 +292,12 @@ static int get_button( unsigned long button, unsigned int* const state )
             ( *state ) = 0;
         }
     }
+
     return ( return_code );
 }
 
-// Since the OSCC API requires a normalized value, we will read in and normalzie a value from the game pad, using that as our requested brake position.
+// Since the OSCC API requires a normalized value, we will read in and
+// normalize a value from the game pad, using that as our requested brake position.
 static int command_brakes( )
 {
     int return_code = OSCC_ERROR;
@@ -317,7 +326,9 @@ static int command_brakes( )
     return ( return_code );
 }
 
-// For the throttle command, we want to send a normalized position based on the throttle position trigger. We also don't want to send throttle commands if we are currently braking.
+// For the throttle command, we want to send a normalized position based on the
+// throttle position trigger. We also don't want to send throttle commands if
+// we are currently braking.
 static int command_throttle( )
 {
     int return_code = OSCC_ERROR;
@@ -334,6 +345,7 @@ static int command_throttle( )
         {
             double normalized_brake_position = 0;
 
+            // If braking, do not throttle
             return_code = get_normalized_position( JOYSTICK_AXIS_BRAKE, &normalized_brake_position );
 
             if ( normalized_brake_position >= BRAKES_ENABLED_MIN )
@@ -358,7 +370,10 @@ static int command_throttle( )
     return ( return_code );
 }
 
-// To send the steering command, we first get the normalized axis position from the game controller. Since the car will fault if it detects too much discontinuity between spoofed output signals, we use an exponential average filter to smooth our output.
+// To send the steering command, we first get the normalized axis position from
+// the game controller. Since the car will fault if it detects too much discontinuity
+// between spoofed output signals, we use an exponential average filter to smooth
+// our output.
 static int command_steering( )
 {
     int return_code = OSCC_ERROR;
@@ -389,8 +404,8 @@ static int command_steering( )
 }
 
 /*
- * These callback functions just check the reports for operator overrides. The 
- * firmware modules should have disabled themselves, but we will send the 
+ * These callback functions just check the reports for operator overrides. The
+ * firmware modules should have disabled themselves, but we will send the
  * command again just to be safe.
  *
  */
@@ -398,9 +413,9 @@ static void throttle_callback(oscc_throttle_report_s *report)
 {
     if ( report->operator_override )
     {
-        printf("Override: Throttle\n");
-
         commander_disable_controls();
+
+        printf("Override: Throttle\n");
     }
 }
 
@@ -408,9 +423,9 @@ static void steering_callback(oscc_steering_report_s *report)
 {
     if ( report->operator_override )
     {
-        printf("Override: Steering\n");
-
         commander_disable_controls();
+
+        printf("Override: Steering\n");
     }
 }
 
@@ -418,9 +433,9 @@ static void brake_callback(oscc_brake_report_s * report)
 {
     if ( report->operator_override )
     {
-        printf("Override: Brake\n");
-
         commander_disable_controls();
+
+        printf("Override: Brake\n");
     }
 }
 
@@ -445,7 +460,7 @@ static void fault_callback(oscc_fault_report_s *report)
 }
 
 // To cast specific OBD messages, you need to know the structure of the
-// data fields and the CAN_ID. 
+// data fields and the CAN_ID.
 static void obd_callback(struct can_frame *frame)
 {
     if ( frame->can_id == KIA_SOUL_OBD_STEERING_WHEEL_ANGLE_CAN_ID )
