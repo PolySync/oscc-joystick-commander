@@ -42,7 +42,7 @@ void signal_handler( int signal_number )
 
 int main( int argc, char **argv )
 {
-    oscc_error_t ret = OSCC_OK;
+    oscc_result_t ret = OSCC_OK;
     unsigned long long update_timestamp = get_timestamp_micro();
     unsigned long long elapsed_time = 0;
 

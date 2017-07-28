@@ -67,7 +67,7 @@ static joystick_device_data_s* joystick = NULL;
 
 static int joystick_init_subsystem( )
 {
-    oscc_error_t ret = OSCC_ERROR;
+    oscc_result_t ret = OSCC_ERROR;
 
     if ( joystick == NULL )
     {
@@ -86,7 +86,7 @@ static int joystick_init_subsystem( )
 
 static int joystick_get_guid_at_index( unsigned long device_index )
 {
-    oscc_error_t ret = OSCC_ERROR;
+    oscc_result_t ret = OSCC_ERROR;
 
     if ( joystick != NULL )
     {
@@ -126,7 +126,7 @@ static int joystick_get_num_devices( )
 
 int joystick_init( )
 {
-    oscc_error_t ret = OSCC_OK;
+    oscc_result_t ret = OSCC_OK;
 
     ret = joystick_init_subsystem();
 
@@ -167,7 +167,7 @@ int joystick_init( )
 
 int joystick_open( unsigned long device_index )
 {
-    oscc_error_t ret = OSCC_ERROR;
+    oscc_result_t ret = OSCC_ERROR;
 
     if ( joystick != NULL )
     {
@@ -234,7 +234,7 @@ void joystick_close( )
 
 int joystick_update( )
 {
-    oscc_error_t ret = OSCC_ERROR;
+    oscc_result_t ret = OSCC_ERROR;
 
     if ( joystick != NULL )
     {
@@ -257,7 +257,7 @@ int joystick_update( )
 
 int joystick_get_axis( unsigned long axis_index, int * const position )
 {
-    oscc_error_t ret = OSCC_ERROR;
+    oscc_result_t ret = OSCC_ERROR;
 
     if ( ( joystick  != NULL ) && ( position != NULL ) )
     {
@@ -276,7 +276,7 @@ int joystick_get_axis( unsigned long axis_index, int * const position )
 int joystick_get_button( unsigned long button_index,
                          unsigned int * const button_state )
 {
-    oscc_error_t ret = OSCC_ERROR;
+    oscc_result_t ret = OSCC_ERROR;
 
     if ( ( joystick  != NULL ) && ( button_state != NULL ) )
     {
