@@ -84,12 +84,9 @@ To use the OSCC API in your own applications, you just need to include any relev
 
 # License Information
 
-Hardware source materials (e.g. schematics, board layouts, wiring diagrams, data sheets, physical
-installation documentation, 3D models, etc.) for the OSCC (Open Source Car Control) Project are
-licensed under Creative Commons Attribution-ShareAlike 4.0 International (CC BY-SA 4.0).
+MIT License
 
-Firmware  and software source for the OSCC (Open Source Car Control) Project is licensed under the
-MIT License (MIT) unless otherwise noted (e.g. 3rd party dependencies, etc.).
+Copyright (c) 2017 PolySync Technologies
 
 Please see [LICENSE.md](LICENSE.md) for more details.
 
