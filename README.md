@@ -11,7 +11,7 @@ OSCC's API and firmware modules are both required, and the modules must be insta
 
 [Xbox 360 Wired Controller](https://www.amazon.com/dp/B004QRKWLA)
 
-[logitech-F310](http://a.co/3GoUlkN)
+[Logitech Gamepad F310](http://a.co/3GoUlkN)
 
 Install the SDL2 library with the command below.
 
