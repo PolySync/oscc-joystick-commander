@@ -23,11 +23,24 @@ sudo apt install libsdl2-dev
 
 If you haven't already, you'll need to install the OSCC hardware modules onto your target vehicle. 
 
-Once you have the hardware installed and the firmware flashed, navigate into your OSCC directory and clone the joystick commander repository. ```cd``` into the joystick_commander directory.
+Once you have the hardware installed and the firmware flashed, clone the joystick commander repo and go into it:
+
+```
+git clone git@github.com:PolySync/oscc-joystick-commander.git
+cd oscc-joystick-commander
+```
+
+From within the joystick commander directory, clone the OSCC repo:
+
+```
+git clone git@github.com:PolySync/oscc.git
+```
+
+This will clone into a directory called `oscc` where CMake will look for the OSCC API when it builds joystick commander.
 
 # Building Joystick Commander
 
-From this directory, run the following sequence to build joystick commander:
+From the joystick commander directory, run the following sequence to build it:
 
 ```
 mkdir build
@@ -50,7 +63,7 @@ For example, with a Kvaser Leaf Light attached, using a bitrate of 500000 and a 
 You would then run:
 
 ```
-./joystick-commander 0
+./oscc-joystick-commander 0
 ```
 
 For more information on setting up a socketcan interface, check out [this guide](http://elinux.org/Bringing_CAN_interface_up).
@@ -69,7 +82,7 @@ Entry point of joystick commander. Initializes OSCC interface, checks for contro
 
 ### joystick
 
-Joystick.c contains all of the functionality necessary to initialize and interact with the game controller.
+`joystick.c` contains all of the functionality necessary to initialize and interact with the game controller.
 
 ### commander
 
@@ -78,9 +91,11 @@ The commander files contain all of joystick commander's interactivity with the O
 # Using OSCC API
 
 To use the OSCC API in your own applications, you just need to include any relevant header files. 
-* All of the can message protocols are located in ```api/include/can_protocols.h```. These specify the structs we use for steering, throttle, brake, and fault reports.
-* Vehicle specific macros and values are located in ```api/vehicles/*```. 
-* ```oscc.h``` includes all of the functionality you need to interface with the OSCC API.
+* All of the can message protocols are located in ```oscc/api/include/can_protocols/```. These specify the structs we use for steering, throttle, brake, and fault reports.
+* Vehicle specific macros and values are located in ```oscc/api/include/vehicles/```. You only nede to include
+`vehicles.h` which will include the relevant vehicle-specific header for you depending on the option you
+provided to CMake (e.g., `-DKIA_SOUL=ON` will include `kia_soul.h`.)
+* ```oscc/api/include/oscc.h``` includes all of the functionality you need to interface with the OSCC API.
 
 # License Information
 
