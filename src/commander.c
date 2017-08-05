@@ -180,21 +180,24 @@ static int get_normalized_position( unsigned long axis_index, double * const nor
 
     int axis_position = 0;
 
-    double low = 0.0, high = 1.0;
-
     return_code = joystick_get_axis( axis_index, &axis_position );
 
     if ( return_code == OSCC_OK )
     {
         if ( axis_index == JOYSTICK_AXIS_STEER )
         {
-            low = -1.0;
+            ( *normalized_position ) = CONSTRAIN(
+            ((double) axis_position) / UINT16_MAX,
+            -1.0,
+            1.0);
         }
-
-        ( *normalized_position ) = CONSTRAIN(
-                ((double) axis_position) / INT16_MAX,
-                low,
-                high);
+        else
+        {
+            ( *normalized_position ) = CONSTRAIN(
+            ((double) axis_position) / INT16_MAX,
+            0.0, 
+            1.0);
+        }
     }
 
     return ( return_code );
@@ -392,8 +395,6 @@ static int command_steering( )
                 average,
                 normalized_position,
                 STEERING_FILTER_FACTOR);
-
-            printf("Steering:\t%f\n", average);
 
             return_code = oscc_publish_steering_torque( average );
         }
