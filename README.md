@@ -10,7 +10,7 @@ For more information about OSCC, check out our [github](https://github.com/PolyS
 # Pre-requisites:
 
 - OSCC's API and firmware modules are both required, and the modules must be installed on the vehicle
-- The socketcan driver for USB and PCIe CAN interfaces is requried, and is pre-installed on most Linux systems
+- The socketcan driver for USB and PCIe CAN interfaces is required, and is pre-installed on most Linux systems
 - An SDL2 supported game controller is also required, and the SDL2 library must be pre-installed
 - A CAN interface adapter, such as the [Kvaser Leaf Light](https://www.kvaser.com), is also necessary in order to connect the API to the OSCC control CAN network via USB
 
