@@ -187,7 +187,7 @@ static int get_normalized_position( unsigned long axis_index, double * const nor
         if ( axis_index == JOYSTICK_AXIS_STEER )
         {
             ( *normalized_position ) = CONSTRAIN(
-            ((double) axis_position) / UINT16_MAX,
+            ((double) axis_position) / INT16_MAX,
             -1.0,
             1.0);
         }
