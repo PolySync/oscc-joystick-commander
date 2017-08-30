@@ -320,7 +320,7 @@ static int command_brakes( )
                 normalized_position,
                 BRAKE_FILTER_FACTOR );
 
-            printf("Brake:\t%f\n", average);
+            printf("brake: %f ", average);
 
             return_code = oscc_publish_brake_position( average );
         }
@@ -364,7 +364,7 @@ static int command_throttle( )
                 normalized_throttle_position,
                 THROTTLE_FILTER_FACTOR );
 
-            printf("Throttle:\t%f\n", average);
+            printf("throttle: %f ", average);
 
             return_code = oscc_publish_throttle_position( average );
         }
@@ -395,6 +395,8 @@ static int command_steering( )
                 average,
                 normalized_position,
                 STEERING_FILTER_FACTOR);
+
+            printf("steering: %f\n", average);
 
             return_code = oscc_publish_steering_torque( average );
         }
