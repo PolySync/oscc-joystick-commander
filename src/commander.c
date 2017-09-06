@@ -80,7 +80,7 @@ int commander_init( int channel )
 
             return_code = joystick_init( );
 
-            printf( "waiting for joystick controls to zero\n" );
+            printf( "Waiting for joystick controls to zero\n" );
 
             while ( return_code != OSCC_ERROR )
             {
@@ -96,6 +96,8 @@ int commander_init( int channel )
                 }
                 else
                 {
+                    printf( "Joystick controls successfully initialized\n" );
+
                     break;
                 }
             }
@@ -195,7 +197,7 @@ static int get_normalized_position( unsigned long axis_index, double * const nor
         {
             ( *normalized_position ) = CONSTRAIN(
             ((double) axis_position) / INT16_MAX,
-            0.0, 
+            0.0,
             1.0);
         }
     }

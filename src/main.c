@@ -62,6 +62,13 @@ int main( int argc, char **argv )
 
     if ( ret == OSCC_OK )
     {
+        printf( "\nControl Ready:\n" );
+        printf( "    START - Enable controls\n" );
+        printf( "    BACK - Disable controls\n" );
+        printf( "    LEFT TRIGGER - Brake\n" );
+        printf( "    RIGHT TRIGGER - Throttle\n" );
+        printf( "    LEFT STICK - Steering\n" );
+
         while ( ret == OSCC_OK && error_thrown == OSCC_OK )
         {
             elapsed_time = get_elapsed_time( update_timestamp );
