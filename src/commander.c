@@ -124,37 +124,45 @@ void commander_close( int channel )
 
 int check_for_controller_update( )
 {
-    unsigned int disable_button = 0;
+    static unsigned int disable_button_previous = 0;
+    unsigned int disable_button_current = 0;
 
     int return_code = joystick_update( );
 
     if ( return_code == OSCC_OK )
     {
         return_code = get_button( JOYSTICK_BUTTON_DISABLE_CONTROLS,
-                                  &disable_button );
+                                  &disable_button_current );
     }
 
     if ( return_code == OSCC_OK )
     {
-        if ( disable_button != 0 )
+        if ( (disable_button_previous != 1)
+            && (disable_button_current != 0 ) )
         {
             return_code = commander_disable_controls( );
         }
+
+        disable_button_previous = disable_button_current;
     }
 
-    unsigned int enable_button = 0;
+    static unsigned int enable_button_previous = 0;
+    unsigned int enable_button_current = 0;
 
     if ( return_code == OSCC_OK )
     {
             return_code = get_button( JOYSTICK_BUTTON_ENABLE_CONTROLS,
-                                      &enable_button );
+                                      &enable_button_current );
 
             if ( return_code == OSCC_OK )
             {
-                if ( enable_button != 0 )
+                if ( (enable_button_previous != 1)
+                    && (enable_button_current != 0 ) )
                 {
                     return_code = commander_enable_controls( );
                 }
+
+                enable_button_previous = enable_button_current;
             }
     }
 
@@ -245,10 +253,11 @@ static int commander_disable_controls( )
 {
     int return_code = OSCC_ERROR;
 
-    printf( "Disable controls\n" );
-
-    if ( commander_enabled == COMMANDER_ENABLED )
+    if ( (commander_enabled == COMMANDER_ENABLED)
+        && (control_enabled == true) )
     {
+        printf( "Disable controls\n" );
+
         return_code = oscc_disable();
 
         if ( return_code == OSCC_OK )
@@ -256,6 +265,11 @@ static int commander_disable_controls( )
             control_enabled = false;
         }
     }
+    else
+    {
+        return_code = OSCC_OK;
+    }
+
     return return_code;
 }
 
@@ -263,10 +277,11 @@ static int commander_enable_controls( )
 {
     int return_code = OSCC_ERROR;
 
-    printf( "Enable controls\n" );
-
-    if ( commander_enabled == COMMANDER_ENABLED )
+    if ( (commander_enabled == COMMANDER_ENABLED)
+        && (control_enabled == false) )
     {
+        printf( "Enable controls\n" );
+
         return_code = oscc_enable();
 
         if ( return_code == OSCC_OK )
@@ -274,6 +289,11 @@ static int commander_enable_controls( )
             control_enabled = true;
         }
     }
+    else
+    {
+        return_code = OSCC_OK;
+    }
+
     return ( return_code );
 }
 
