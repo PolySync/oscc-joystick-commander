@@ -80,7 +80,7 @@ int commander_init( int channel )
 
             return_code = joystick_init( );
 
-            printf( "waiting for joystick controls to zero\n" );
+            printf( "Waiting for joystick controls to zero\n" );
 
             while ( return_code != OSCC_ERROR )
             {
@@ -195,7 +195,7 @@ static int get_normalized_position( unsigned long axis_index, double * const nor
         {
             ( *normalized_position ) = CONSTRAIN(
             ((double) axis_position) / INT16_MAX,
-            0.0, 
+            0.0,
             1.0);
         }
     }
@@ -320,7 +320,7 @@ static int command_brakes( )
                 normalized_position,
                 BRAKE_FILTER_FACTOR );
 
-            printf("brake: %f ", average);
+            printf("Brake: %f ", average);
 
             return_code = oscc_publish_brake_position( average );
         }
@@ -364,7 +364,7 @@ static int command_throttle( )
                 normalized_throttle_position,
                 THROTTLE_FILTER_FACTOR );
 
-            printf("throttle: %f ", average);
+            printf("Throttle: %f ", average);
 
             return_code = oscc_publish_throttle_position( average );
         }
@@ -396,7 +396,7 @@ static int command_steering( )
                 normalized_position,
                 STEERING_FILTER_FACTOR);
 
-            printf("steering: %f\n", average);
+            printf("Steering: %f\n", average);
 
             return_code = oscc_publish_steering_torque( average );
         }
