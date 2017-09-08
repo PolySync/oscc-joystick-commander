@@ -56,7 +56,9 @@ int main( int argc, char **argv )
         exit( 1 );
     }
 
-    signal( SIGINT, signal_handler );
+    struct sigaction sig;
+    sig.sa_handler = signal_handler;
+    sigaction( SIGINT, &sig, NULL );
 
     ret = commander_init( channel );
 
