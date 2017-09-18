@@ -1,4 +1,5 @@
 #include <stdint.h>
+#include <stdbool.h>
 #include <unistd.h>
 #include <stdio.h>
 #include <math.h>
@@ -11,14 +12,13 @@
 #include <linux/can.h>
 
 #include "oscc.h"
+#include "joystick.h"
 #include "vehicles.h"
 
 #include "can_protocols/brake_can_protocol.h"
 #include "can_protocols/steering_can_protocol.h"
 #include "can_protocols/throttle_can_protocol.h"
 #include "can_protocols/fault_can_protocol.h"
-
-#include "joystick.h"
 
 
 #define CONSTRAIN(amt, low, high) ((amt) < (low) ? (low) : ((amt) > (high) ? (high) : (amt)))
@@ -166,7 +166,8 @@ int check_for_controller_update( )
             }
     }
 
-    if ( control_enabled )
+    if ( (return_code == OSCC_OK)
+        && (control_enabled == true) )
     {
         return_code = command_brakes( );
 
