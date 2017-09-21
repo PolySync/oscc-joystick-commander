@@ -1,4 +1,5 @@
 #include <stdint.h>
+#include <stdbool.h>
 #include <unistd.h>
 #include <stdio.h>
 #include <math.h>
@@ -11,14 +12,13 @@
 #include <linux/can.h>
 
 #include "oscc.h"
+#include "joystick.h"
 #include "vehicles.h"
 
 #include "can_protocols/brake_can_protocol.h"
 #include "can_protocols/steering_can_protocol.h"
 #include "can_protocols/throttle_can_protocol.h"
 #include "can_protocols/fault_can_protocol.h"
-
-#include "joystick.h"
 
 
 #define CONSTRAIN(amt, low, high) ((amt) < (low) ? (low) : ((amt) > (high) ? (high) : (amt)))
@@ -80,7 +80,7 @@ int commander_init( int channel )
 
             return_code = joystick_init( );
 
-            printf( "waiting for joystick controls to zero\n" );
+            printf( "Waiting for joystick controls to zero\n" );
 
             while ( return_code != OSCC_ERROR )
             {
@@ -96,6 +96,8 @@ int commander_init( int channel )
                 }
                 else
                 {
+                    printf( "Joystick controls successfully initialized\n" );
+
                     break;
                 }
             }
@@ -122,41 +124,50 @@ void commander_close( int channel )
 
 int check_for_controller_update( )
 {
-    unsigned int disable_button = 0;
+    static unsigned int disable_button_previous = 0;
+    unsigned int disable_button_current = 0;
 
     int return_code = joystick_update( );
 
     if ( return_code == OSCC_OK )
     {
         return_code = get_button( JOYSTICK_BUTTON_DISABLE_CONTROLS,
-                                  &disable_button );
+                                  &disable_button_current );
     }
 
     if ( return_code == OSCC_OK )
     {
-        if ( disable_button != 0 )
+        if ( (disable_button_previous != 1)
+            && (disable_button_current != 0 ) )
         {
             return_code = commander_disable_controls( );
         }
+
+        disable_button_previous = disable_button_current;
     }
 
-    unsigned int enable_button = 0;
+    static unsigned int enable_button_previous = 0;
+    unsigned int enable_button_current = 0;
 
     if ( return_code == OSCC_OK )
     {
             return_code = get_button( JOYSTICK_BUTTON_ENABLE_CONTROLS,
-                                      &enable_button );
+                                      &enable_button_current );
 
             if ( return_code == OSCC_OK )
             {
-                if ( enable_button != 0 )
+                if ( (enable_button_previous != 1)
+                    && (enable_button_current != 0 ) )
                 {
                     return_code = commander_enable_controls( );
                 }
+
+                enable_button_previous = enable_button_current;
             }
     }
 
-    if ( control_enabled )
+    if ( (return_code == OSCC_OK)
+        && (control_enabled == true) )
     {
         return_code = command_brakes( );
 
@@ -180,21 +191,24 @@ static int get_normalized_position( unsigned long axis_index, double * const nor
 
     int axis_position = 0;
 
-    double low = 0.0, high = 1.0;
-
     return_code = joystick_get_axis( axis_index, &axis_position );
 
     if ( return_code == OSCC_OK )
     {
         if ( axis_index == JOYSTICK_AXIS_STEER )
         {
-            low = -1.0;
+            ( *normalized_position ) = CONSTRAIN(
+            ((double) axis_position) / INT16_MAX,
+            -1.0,
+            1.0);
         }
-
-        ( *normalized_position ) = CONSTRAIN(
-                ((double) axis_position) / INT16_MAX,
-                low,
-                high);
+        else
+        {
+            ( *normalized_position ) = CONSTRAIN(
+            ((double) axis_position) / INT16_MAX,
+            0.0,
+            1.0);
+        }
     }
 
     return ( return_code );
@@ -240,10 +254,11 @@ static int commander_disable_controls( )
 {
     int return_code = OSCC_ERROR;
 
-    printf( "Disable controls\n" );
-
-    if ( commander_enabled == COMMANDER_ENABLED )
+    if ( (commander_enabled == COMMANDER_ENABLED)
+        && (control_enabled == true) )
     {
+        printf( "Disable controls\n" );
+
         return_code = oscc_disable();
 
         if ( return_code == OSCC_OK )
@@ -251,6 +266,11 @@ static int commander_disable_controls( )
             control_enabled = false;
         }
     }
+    else
+    {
+        return_code = OSCC_OK;
+    }
+
     return return_code;
 }
 
@@ -258,10 +278,11 @@ static int commander_enable_controls( )
 {
     int return_code = OSCC_ERROR;
 
-    printf( "Enable controls\n" );
-
-    if ( commander_enabled == COMMANDER_ENABLED )
+    if ( (commander_enabled == COMMANDER_ENABLED)
+        && (control_enabled == false) )
     {
+        printf( "Enable controls\n" );
+
         return_code = oscc_enable();
 
         if ( return_code == OSCC_OK )
@@ -269,6 +290,11 @@ static int commander_enable_controls( )
             control_enabled = true;
         }
     }
+    else
+    {
+        return_code = OSCC_OK;
+    }
+
     return ( return_code );
 }
 
@@ -317,7 +343,7 @@ static int command_brakes( )
                 normalized_position,
                 BRAKE_FILTER_FACTOR );
 
-            printf("Brake:\t%f\n", average);
+            printf("Brake: %f ", average);
 
             return_code = oscc_publish_brake_position( average );
         }
@@ -361,7 +387,7 @@ static int command_throttle( )
                 normalized_throttle_position,
                 THROTTLE_FILTER_FACTOR );
 
-            printf("Throttle:\t%f\n", average);
+            printf("Throttle: %f ", average);
 
             return_code = oscc_publish_throttle_position( average );
         }
@@ -393,7 +419,7 @@ static int command_steering( )
                 normalized_position,
                 STEERING_FILTER_FACTOR);
 
-            printf("Steering:\t%f\n", average);
+            printf("Steering: %f\n", average);
 
             return_code = oscc_publish_steering_torque( average );
         }
