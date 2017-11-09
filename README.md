@@ -49,16 +49,30 @@ This will clone into a directory called `oscc` where CMake will look for the OSC
 
 # Building Joystick Commander
 
-From the joystick commander directory, run the following sequence to build it:
+From the root directory, create a build directory inside of it:
 
 ```
 mkdir build
 cd build
+```
+
+To generate Makefiles, tell `cmake` which vehicle to build for by supplying the
+appropriate build flag:
+
+| Vehicle         | Flag             |
+| --------------- | ---------------- |
+| Kia Soul Petrol | -DKIA_SOUL=ON    |
+| Kia Soul EV     | -DKIA_SOUL_EV=ON |
+
+
+For example, if you want to build joystick commander for the petrol Kia Soul:
+
+```
 cmake .. -DKIA_SOUL=ON
 make
 ```
 
-The KIA_SOUL CMake option enables the API to swap between different vehicle specifications, allowing the firmware and API to remain car agnostic.
+The vehicle build flag enables the API to swap between different vehicle specifications, allowing the firmware and API to remain car agnostic.
 
 After initializing the CAN interface, use the channel number to start joystick commander and begin sending commands to the OSCC modules.
 
