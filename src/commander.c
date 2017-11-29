@@ -166,8 +166,7 @@ int check_for_controller_update( )
             }
     }
 
-    if ( (return_code == OSCC_OK)
-        && (control_enabled == true) )
+    if ( return_code == OSCC_OK )
     {
         return_code = command_brakes( );
 
@@ -364,6 +363,12 @@ static int command_brakes( )
             return_code = oscc_publish_brake_position( average );
         }
     }
+    else
+    {
+        average = 0.0;
+
+        return_code = OSCC_OK;
+    }
 
     return ( return_code );
 }
@@ -408,6 +413,12 @@ static int command_throttle( )
             return_code = oscc_publish_throttle_position( average );
         }
     }
+    else
+    {
+        average = 0.0;
+
+        return_code = OSCC_OK;
+    }
 
     return ( return_code );
 }
@@ -439,9 +450,14 @@ static int command_steering( )
 
             return_code = oscc_publish_steering_torque( average );
         }
-
-
     }
+    else
+    {
+        average = 0.0;
+
+        return_code = OSCC_OK;
+    }
+
     return ( return_code );
 }
 
