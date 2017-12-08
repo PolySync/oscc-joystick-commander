@@ -423,7 +423,7 @@ static int command_steering( )
             printf("Steering: %f\n", average);
 
             // use only 20% of allowable range for controllability
-            return_code = oscc_publish_steering_torque( average * STEERING_RANGE_PERCENTAGE);
+            return_code = oscc_publish_steering_torque( average * STEERING_RANGE_PERCENTAGE );
         }
 
 
