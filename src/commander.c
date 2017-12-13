@@ -167,8 +167,7 @@ int check_for_controller_update( )
             }
     }
 
-    if ( (return_code == OSCC_OK)
-        && (control_enabled == true) )
+    if ( return_code == OSCC_OK )
     {
         return_code = command_brakes( );
 
@@ -192,21 +191,37 @@ static int get_normalized_position( unsigned long axis_index, double * const nor
 
     int axis_position = 0;
 
+    static const float deadzone = 0.3;
+
     return_code = joystick_get_axis( axis_index, &axis_position );
 
     if ( return_code == OSCC_OK )
     {
+        // this is between -1.0 and 1.0
+        double raw_normalized_position = ((double) axis_position / INT16_MAX);
+
         if ( axis_index == JOYSTICK_AXIS_STEER )
         {
-            ( *normalized_position ) = CONSTRAIN(
-            ((double) axis_position) / INT16_MAX,
-            -1.0,
-            1.0);
+            // if axis is in deadzone, do nothing
+            if ( fabs(raw_normalized_position) < deadzone)
+            {
+                ( *normalized_position ) = 0.0;
+            }
+            else
+            {
+                // normalize over non deadzone range
+                raw_normalized_position *= (fabs(raw_normalized_position) - deadzone) / (1.0 - deadzone);
+
+                ( *normalized_position ) = CONSTRAIN(
+                raw_normalized_position,
+                -1.0,
+                1.0);
+            }
         }
         else
         {
             ( *normalized_position ) = CONSTRAIN(
-            ((double) axis_position) / INT16_MAX,
+            raw_normalized_position,
             0.0,
             1.0);
         }
@@ -349,6 +364,12 @@ static int command_brakes( )
             return_code = oscc_publish_brake_position( average );
         }
     }
+    else
+    {
+        average = 0.0;
+
+        return_code = OSCC_OK;
+    }
 
     return ( return_code );
 }
@@ -393,6 +414,12 @@ static int command_throttle( )
             return_code = oscc_publish_throttle_position( average );
         }
     }
+    else
+    {
+        average = 0.0;
+
+        return_code = OSCC_OK;
+    }
 
     return ( return_code );
 }
@@ -425,9 +452,14 @@ static int command_steering( )
             // use only 20% of allowable range for controllability
             return_code = oscc_publish_steering_torque( average * STEERING_RANGE_PERCENTAGE );
         }
-
-
     }
+    else
+    {
+        average = 0.0;
+
+        return_code = OSCC_OK;
+    }
+
     return ( return_code );
 }
 
