@@ -28,6 +28,7 @@
 #define JOYSTICK_AXIS_STEER (SDL_CONTROLLER_AXIS_LEFTX)
 #define JOYSTICK_BUTTON_ENABLE_CONTROLS (SDL_CONTROLLER_BUTTON_START)
 #define JOYSTICK_BUTTON_DISABLE_CONTROLS (SDL_CONTROLLER_BUTTON_BACK)
+#define STEERING_RANGE_PERCENTAGE (0.2)
 #define BRAKES_ENABLED_MIN (0.05)
 #define JOYSTICK_DELAY_INTERVAL (50000)
 #define COMMANDER_ENABLED ( 1 )
@@ -421,7 +422,8 @@ static int command_steering( )
 
             printf("Steering: %f\n", average);
 
-            return_code = oscc_publish_steering_torque( average );
+            // use only 20% of allowable range for controllability
+            return_code = oscc_publish_steering_torque( average * STEERING_RANGE_PERCENTAGE );
         }
 
 
