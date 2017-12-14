@@ -1,4 +1,3 @@
-
 #!groovy
 node('xenial') {
   try {
