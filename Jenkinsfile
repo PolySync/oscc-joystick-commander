@@ -5,7 +5,7 @@ node('xenial') {
 	  clean_checkout()
 	}
     stage('Build') {
-        sh 'mkdir build && cd build && cmake .. -DKIA_SOUL=ON && make'
+        sh 'git clone git@github.com:PolySync/oscc.git --branch master && mkdir build && cd build && cmake .. -DKIA_SOUL=ON && make'
         echo 'Build Complete!'
     }
   }
