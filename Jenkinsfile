@@ -6,8 +6,7 @@ node('xenial') {
 	}
     stage('Build') {
         sh 'mkdir build && cd build && cmake .. -DKIA_SOUL=ON && make'
-      }
-      echo 'Build Complete!'
+        echo 'Build Complete!'
     }
   }
   catch(Exception e) {
