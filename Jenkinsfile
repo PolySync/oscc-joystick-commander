@@ -9,9 +9,6 @@ node('xenial') {
         echo 'Build Complete!'
     }
   }
-  catch(Exception e) {
-    throw e;
-  }
   finally {
     deleteDir()
   }
