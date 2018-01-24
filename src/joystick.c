@@ -62,7 +62,12 @@ typedef struct
 
 
 static joystick_guid_s joystick_guid;
-static joystick_device_data_s joystick_data = { NULL, &joystick_guid };
+static joystick_device_data_s joystick_data = {
+    .controller = NULL,
+    .haptic = NULL,
+    .guid = &joystick_guid
+    };
+
 static joystick_device_data_s* joystick = NULL;
 
 static int joystick_init_subsystem( )
@@ -171,7 +176,7 @@ int joystick_open( unsigned long device_index )
 
     if ( joystick != NULL )
     {
-        joystick->controller = 
+        joystick->controller =
             (void*) SDL_GameControllerOpen( (int) device_index );
 
         if ( joystick->controller == JOYSTICK_DEVICE_CONTROLLER_INVALID )
@@ -183,7 +188,7 @@ int joystick_open( unsigned long device_index )
             ret = OSCC_OK;
 
             const SDL_JoystickGUID m_guid =
-                SDL_JoystickGetGUID( 
+                SDL_JoystickGetGUID(
                     SDL_GameControllerGetJoystick( joystick->controller ) );
 
             memcpy( joystick_guid.data, m_guid.data, sizeof( m_guid.data ) );
@@ -196,10 +201,10 @@ int joystick_open( unsigned long device_index )
                                        joystick_guid.ascii_string,
                                        sizeof( joystick_guid.ascii_string ) );
 
-            joystick->haptic = 
-                (void*) SDL_HapticOpenFromJoystick( 
+            joystick->haptic =
+                (void*) SDL_HapticOpenFromJoystick(
                     SDL_GameControllerGetJoystick( joystick->controller ));
- 
+
             if ( SDL_HapticRumbleInit( joystick->haptic ) != 0 )
             {
                 SDL_HapticClose( joystick->haptic );
@@ -217,7 +222,7 @@ void joystick_close( )
         {
             if ( SDL_GameControllerGetAttached( joystick->controller ) ==            SDL_TRUE )
             {
-                if ( joystick->haptic ) 
+                if ( joystick->haptic )
                 {
                     SDL_HapticClose( joystick->haptic );
                 }
@@ -266,7 +271,7 @@ int joystick_get_axis( unsigned long axis_index, int * const position )
         const Sint16 pos = SDL_GameControllerGetAxis( joystick->controller,
                                                       axis_index );
 
-        
+
         ( *position ) = (int) pos;
     }
 
@@ -288,12 +293,12 @@ int joystick_get_button( unsigned long button_index,
         if ( m_state == 1 )
         {
             ( *button_state ) = JOYSTICK_BUTTON_STATE_PRESSED;
-            
+
             if ( joystick->haptic )
             {
                 SDL_HapticRumblePlay( joystick->haptic, 1.0f, 100 );
             }
-            
+
             ( void ) usleep( BUTTON_PRESSED_DELAY );
         }
         else
