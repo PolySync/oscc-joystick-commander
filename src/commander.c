@@ -432,8 +432,6 @@ static int command_steering( )
 {
     int return_code = OSCC_ERROR;
 
-    static double average = 0.0;
-
     if ( commander_enabled == COMMANDER_ENABLED && control_enabled == true )
     {
         double normalized_position = 0;
@@ -442,21 +440,15 @@ static int command_steering( )
 
         if( return_code == OSCC_OK )
         {
-            average = calc_exponential_average(
-                average,
-                normalized_position,
-                STEERING_FILTER_FACTOR);
+            double position = normalized_position * 400;
 
-            printf("Steering: %f\n", average);
+            printf("Steering: %f\n", position);
 
-            // use only 20% of allowable range for controllability
-            return_code = oscc_publish_steering_torque( average * STEERING_RANGE_PERCENTAGE );
+            return_code = oscc_publish_steering_angle( position, 400 );
         }
     }
     else
     {
-        average = 0.0;
-
         return_code = OSCC_OK;
     }
 
