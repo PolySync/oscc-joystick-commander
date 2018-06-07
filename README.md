@@ -41,7 +41,7 @@ cd oscc-joystick-commander
 From within the joystick commander directory, clone the OSCC repo:
 
 ```
-git clone git@github.com:PolySync/oscc.git --branch master
+git submodule update --init
 ```
 
 This will clone into a directory called `oscc` where CMake will look for the OSCC API when it builds joystick commander.
