@@ -54,7 +54,7 @@ From the joystick commander directory, run the following sequence to build it:
 ```
 mkdir build
 cd build
-cmake .. -DVEHICLE=kia_soul
+cmake .. -DKIA_SOUL=ON
 make
 ```
 
