@@ -59,16 +59,17 @@ cd build
 To generate Makefiles, tell `cmake` which vehicle to build for by supplying the
 appropriate build flag:
 
-| Vehicle         | Flag             |
-| --------------- | ---------------- |
-| Kia Soul Petrol | -DKIA_SOUL=ON    |
-| Kia Soul EV     | -DKIA_SOUL_EV=ON |
+| Vehicle         | Flag                  |
+| --------------- | --------------------- |
+| Kia Soul Petrol | -DVEHICLE=kia_soul    |
+| Kia Soul EV     | -DVEHICLE=kia_soul_ev |
+| Kia Niro        | -DVEHICLE=kia_niro    |
 
 
-For example, if you want to build joystick commander for the petrol Kia Soul:
+For example, if you want to build joystick commander for the Kia Niro:
 
 ```
-cmake .. -DKIA_SOUL=ON
+cmake .. -DVEHICLE=kia_niro
 make
 ```
 
