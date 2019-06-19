@@ -10,7 +10,7 @@
 #include "commander.h"
 #include "can_protocols/steering_can_protocol.h"
 
-#define COMMANDER_UPDATE_INTERVAL_MICRO (50000)
+#define COMMANDER_UPDATE_INTERVAL_MICRO (10000)
 #define SLEEP_TICK_INTERVAL_MICRO (1000)
 
 static int error_thrown = OSCC_OK;
