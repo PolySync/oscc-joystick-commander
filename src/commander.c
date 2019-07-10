@@ -359,7 +359,9 @@ static int command_brakes( )
                 normalized_position,
                 BRAKE_FILTER_FACTOR );
 
-            printf("Brake: %f ", average);
+            printf("Brake average: %f ", average);
+            printf("Brake normalized_position: %f ", normalized_position);
+            printf("Brake BRAKE_FILTER_FACTOR %f ", BRAKE_FILTER_FACTOR );
 
             return_code = oscc_publish_brake_position( average );
         }
